@@ -1,0 +1,6 @@
+@import 'antd/dist/antd.min.css';
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
