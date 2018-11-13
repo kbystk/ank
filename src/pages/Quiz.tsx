@@ -78,7 +78,9 @@ const Quiz = ({ save, master, words, setWords, setShuffledWords }: IProps) => {
     case STATE.THINKING:
       return (
         <>
-          <h1 style={{ fontSize: '8rem' }}>{word.word}</h1>
+          <h1 style={{ fontSize: '8rem', wordBreak: 'break-all' }}>
+            {word.word}
+          </h1>
           <h2 style={{ fontSize: '6rem' }}>{diff}</h2>
           <Button type="primary" onClick={reveal}>
             Reveal
@@ -88,8 +90,12 @@ const Quiz = ({ save, master, words, setWords, setShuffledWords }: IProps) => {
     case STATE.REVEAL:
       return (
         <>
-          <h1 style={{ fontSize: '8rem' }}>{word.word}</h1>
-          <h2 style={{ fontSize: '6rem' }}>{word.mean}</h2>
+          <h1 style={{ fontSize: '8rem', wordBreak: 'break-all' }}>
+            {word.word}
+          </h1>
+          <h2 style={{ fontSize: '6rem', wordBreak: 'break-all' }}>
+            {word.mean}
+          </h2>
           <Row>
             <Col span={12} style={{ textAlign: 'center' }}>
               <Button
