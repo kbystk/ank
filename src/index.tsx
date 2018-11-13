@@ -72,15 +72,13 @@ const Page = () => {
   const TargetPage = Pages[page]
   return (
     <LocaleProvider locale={ja_JP}>
-      <Layout>
-        <Header style={{ backgroundColor: '#fff' }}>
-          <Menu onClick={onClick} selectedKeys={[page]} mode="horizontal">
-            <Item key={PAGE.TOP}>Top</Item>
-            <Item key={PAGE.QUIZ}>Quiz</Item>
-            <Item key={PAGE.WORD}>Register words</Item>
-            <Item key={PAGE.TOKEN}>Register token</Item>
-          </Menu>
-        </Header>
+      <Layout style={{ minHeight: '100vh' }}>
+        <Menu onClick={onClick} selectedKeys={[page]} mode="horizontal">
+          <Item key={PAGE.TOP}>Top</Item>
+          <Item key={PAGE.QUIZ}>Quiz</Item>
+          <Item key={PAGE.WORD}>Register words</Item>
+          <Item key={PAGE.TOKEN}>Register token</Item>
+        </Menu>
         <Content>
           <TargetPage
             words={words}

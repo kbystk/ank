@@ -32,9 +32,11 @@ export default ({ setWords, currentId, setCurrentId }: IPageProps) => {
           </Button>
         </Col>
       </Row>
-      <Button type="primary" onClick={load}>
-        Load
-      </Button>
+      <div style={{ textAlign: 'center', margin: '2rem' }}>
+        <Button type="primary" onClick={load} size="large">
+          Load
+        </Button>
+      </div>
     </>
   )
 }

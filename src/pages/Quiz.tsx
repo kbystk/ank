@@ -1,7 +1,11 @@
-import { Button, Col, Row } from 'antd'
+import { Button, Col, Row, Select } from 'antd'
 import { differenceInMilliseconds, format } from 'date-fns'
 import React, { useState } from 'react'
 import { IPageProps, IWord } from '../'
+
+import { SelectValue } from 'antd/lib/select'
+
+const { Option } = Select
 
 enum STATE {
   WAITING = 'WAITING',
@@ -12,14 +16,22 @@ enum STATE {
 
 let startTime: Date
 
-export default ({ words, setWords, save }: IPageProps) => {
+interface IIndexedWord extends IWord {
+  index: number
+}
+
+interface IProps {
+  master: IWord[]
+  words: IIndexedWord[]
+  save(): void
+  setWords(next: IWord[]): void
+}
+
+const Quiz = ({ save, master, words, setWords }: IProps) => {
   const [current, setCurrent] = useState(0)
   const [state, setState] = useState(STATE.WAITING)
   const [diff, setDiff] = useState('')
-  const filteredWords = words
-    .map((w, index) => ({ ...w, index }))
-    .filter(w => w.state < 6)
-  const word = filteredWords[current]
+  const word = words[current]
   const tick = () => {
     const d = differenceInMilliseconds(new Date(), startTime)
     setDiff(format(d > 1000 ? 1000 : d, 's.SSS'))
@@ -34,7 +46,7 @@ export default ({ words, setWords, save }: IPageProps) => {
   }
   const reveal = () => setState(STATE.REVEAL)
   const base = (fn: (w: IWord, i: number) => IWord) => () => {
-    const next = words.map(fn)
+    const next = master.map(fn)
     setWords(next)
     if (current + 1 < words.length) {
       setCurrent(current + 1)
@@ -54,18 +66,15 @@ export default ({ words, setWords, save }: IPageProps) => {
   switch (state) {
     case STATE.WAITING:
       return (
-        <>
-          <div>{filteredWords.length}</div>
-          <Button type="primary" onClick={start}>
-            Start
-          </Button>
-        </>
+        <Button type="primary" onClick={start}>
+          Start: {words.length}
+        </Button>
       )
     case STATE.THINKING:
       return (
         <>
-          <h1 style={{ fontSize: '8em' }}>{word.word}</h1>
-          <h2 style={{ fontSize: '6em' }}>{diff}</h2>
+          <h1 style={{ fontSize: '8rem' }}>{word.word}</h1>
+          <h2 style={{ fontSize: '6rem' }}>{diff}</h2>
           <Button type="primary" onClick={reveal}>
             Reveal
           </Button>
@@ -74,22 +83,32 @@ export default ({ words, setWords, save }: IPageProps) => {
     case STATE.REVEAL:
       return (
         <>
-          <h1 style={{ fontSize: '8em' }}>{word.word}</h1>
-          <h2 style={{ fontSize: '6em' }}>{word.mean}</h2>
+          <h1 style={{ fontSize: '8rem' }}>{word.word}</h1>
+          <h2 style={{ fontSize: '6rem' }}>{word.mean}</h2>
           <Row>
-            <Col span={1}>
-              <Button type="primary" onClick={inc} size="large">
+            <Col span={12} style={{ textAlign: 'center' }}>
+              <Button
+                type="primary"
+                onClick={inc}
+                size="large"
+                style={{ fontSize: '2rem', height: '4rem', width: '4rem' }}
+              >
                 +
               </Button>
             </Col>
-            <Col span={1}>
-              <Button type="danger" onClick={dec} size="large">
+            <Col span={12} style={{ textAlign: 'center' }}>
+              <Button
+                type="danger"
+                onClick={dec}
+                size="large"
+                style={{ fontSize: '2rem', height: '4rem', width: '4rem' }}
+              >
                 -
               </Button>
             </Col>
           </Row>
           <Row>
-            <Col span={8}>
+            <Col span={24} style={{ textAlign: 'center' }}>
               <Button onClick={save}>Save</Button>
             </Col>
           </Row>
@@ -105,4 +124,58 @@ export default ({ words, setWords, save }: IPageProps) => {
         </>
       )
   }
+}
+
+export default ({ words, setWords, save }: IPageProps) => {
+  const [shuffledWords, setShuffledWords] = useState([])
+  const [targetState, setTargetState] = useState(5)
+  const stateMap = words
+    .map((word, index) => ({ ...word, index }))
+    .reduce((prev, curr) => {
+      const target = prev.get(curr.state)
+      target
+        ? prev.set(curr.state, [...target, curr])
+        : prev.set(curr.state, [curr])
+      return prev
+    }, new Map())
+  const sortedKeys = Array.from(stateMap.keys()).sort((x, y) => x - y)
+  const onChange = (value: SelectValue) => setTargetState(value as number)
+  const shuffle = () => {
+    const candidate = stateMap.get(targetState)
+    for (let i = 0; i < candidate.length; i++) {
+      const rand = Math.floor(Math.random() * i)
+      const swp = candidate[i]
+      candidate[i] = candidate[rand]
+      candidate[rand] = swp
+    }
+    setShuffledWords(candidate)
+  }
+  return shuffledWords.length === 0 ? (
+    <>
+      <ul>
+        {sortedKeys.map(key => (
+          <li key={key}>
+            {key}:{stateMap.get(key).length}
+          </li>
+        ))}
+      </ul>
+      <Select value={targetState} onChange={onChange}>
+        {sortedKeys.map(key => (
+          <Option key={key} value={key}>
+            {key}
+          </Option>
+        ))}
+      </Select>
+      <Button type="primary" onClick={shuffle}>
+        Shuffle
+      </Button>
+    </>
+  ) : (
+    <Quiz
+      save={save}
+      master={words}
+      words={shuffledWords}
+      setWords={setWords}
+    />
+  )
 }
