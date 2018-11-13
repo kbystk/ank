@@ -5,7 +5,10 @@ import { FILENAME, IPageProps, LOCALSTORAGE } from '../'
 export default ({ setWords, currentId, setCurrentId }: IPageProps) => {
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setCurrentId(e.currentTarget.value)
-  const onClick = () => localStorage.setItem(LOCALSTORAGE.CURRENT_ID, currentId)
+  const onClick = () => {
+    localStorage.setItem(LOCALSTORAGE.CURRENT_ID, currentId)
+    message.success(`${currentId} set suceed.`)
+  }
   const load = async () => {
     const res = await fetch(`https://api.github.com/gists/${currentId}`, {
       headers: {

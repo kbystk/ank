@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "antd": "^3.10.7",
+    "date-fns": "^2.0.0-alpha.25",
     "react": "^16.7.0-alpha.0",
     "react-dom": "^16.7.0-alpha.0"
   },

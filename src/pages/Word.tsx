@@ -1,6 +1,6 @@
-import { Button, Col, Input, message, Row, Table } from 'antd'
-import React, { useState } from 'react'
-import { FILENAME, IPageProps, LOCALSTORAGE } from '../'
+import { Button, Col, Input, Row, Table } from 'antd'
+import React, { useRef, useState } from 'react'
+import { IPageProps, IWord } from '../'
 
 const colmuns = [
   {
@@ -20,9 +20,12 @@ const colmuns = [
   }
 ]
 
-export default ({ words, setWords, currentId }: IPageProps) => {
+const rowKey = (row: IWord) => row.word
+
+export default ({ words, setWords, save }: IPageProps) => {
   const [word, updateWord] = useState('')
   const [mean, updateMean] = useState('')
+  const ref = useRef(null)
   const wordOnChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     updateWord(e.currentTarget.value)
   const meanOnChange = (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -40,30 +43,33 @@ export default ({ words, setWords, currentId }: IPageProps) => {
     updateWord('')
     updateMean('')
   }
-  const save = async () => {
-    await fetch(`https://api.github.com/gists/${currentId}`, {
-      body: JSON.stringify({
-        files: {
-          [FILENAME]: {
-            content: JSON.stringify(words)
-          }
-        }
-      }),
-      headers: {
-        Authorization: `token ${localStorage.getItem(LOCALSTORAGE.GIST_TOKEN)}`
-      },
-      method: 'PATCH'
-    })
-    message.success(`${currentId} saved!`)
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.keyCode === 13) {
+      update()
+      if (ref.current !== null) {
+        // @ts-ignore
+        ref.current.focus()
+      }
+    }
   }
   return (
     <>
       <Row>
         <Col span={9}>
-          <Input value={word} placeholder="Word..." onChange={wordOnChange} />
+          <Input
+            value={word}
+            placeholder="Word..."
+            onChange={wordOnChange}
+            ref={ref}
+          />
         </Col>
         <Col span={9}>
-          <Input value={mean} placeholder="Mean..." onChange={meanOnChange} />
+          <Input
+            value={mean}
+            placeholder="Mean..."
+            onChange={meanOnChange}
+            onKeyDown={onKeyDown}
+          />
         </Col>
         <Col span={6}>
           <Button type="primary" onClick={update}>
@@ -74,7 +80,7 @@ export default ({ words, setWords, currentId }: IPageProps) => {
       <Button type="primary" onClick={save}>
         Save
       </Button>
-      <Table dataSource={words} columns={colmuns} />
+      <Table dataSource={words} columns={colmuns} rowKey={rowKey} />
     </>
   )
 }
