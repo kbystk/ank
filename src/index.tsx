@@ -1,14 +1,11 @@
 import '@babel/polyfill'
 import { Layout, LocaleProvider, Menu, message } from 'antd'
 import ja_JP from 'antd/lib/locale-provider/ja_JP'
-import React, { useState } from 'react'
+import React, { lazy, Suspense, useState } from 'react'
 import { render } from 'react-dom'
-import Quiz from './pages/Quiz'
-import Token from './pages/Token'
 import Top from './pages/Top'
-import Word from './pages/Word'
 
-const { Header, Content } = Layout
+const { Content } = Layout
 const { Item } = Menu
 
 export const FILENAME = 'db.json'
@@ -40,10 +37,10 @@ export interface IPageProps {
 }
 
 const Pages = {
-  [PAGE.TOKEN]: Token,
+  [PAGE.TOKEN]: lazy(() => import('./pages/Token')),
   [PAGE.TOP]: Top,
-  [PAGE.WORD]: Word,
-  [PAGE.QUIZ]: Quiz
+  [PAGE.WORD]: lazy(() => import('./pages/Word')),
+  [PAGE.QUIZ]: lazy(() => import('./pages/Quiz'))
 }
 
 const Page = () => {
@@ -80,13 +77,15 @@ const Page = () => {
           <Item key={PAGE.TOKEN}>Register token</Item>
         </Menu>
         <Content>
-          <TargetPage
-            words={words}
-            setWords={setWords}
-            currentId={currentId}
-            setCurrentId={setCurrentId}
-            save={save}
-          />
+          <Suspense fallback="loading...">
+            <TargetPage
+              words={words}
+              setWords={setWords}
+              currentId={currentId}
+              setCurrentId={setCurrentId}
+              save={save}
+            />
+          </Suspense>
         </Content>
       </Layout>
     </LocaleProvider>
