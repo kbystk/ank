@@ -25,9 +25,10 @@ interface IProps {
   words: IIndexedWord[]
   save(): void
   setWords(next: IWord[]): void
+  setShuffledWords(next: IIndexedWord[]): void
 }
 
-const Quiz = ({ save, master, words, setWords }: IProps) => {
+const Quiz = ({ save, master, words, setWords, setShuffledWords }: IProps) => {
   const [current, setCurrent] = useState(0)
   const [state, setState] = useState(STATE.WAITING)
   const [diff, setDiff] = useState('')
@@ -63,6 +64,10 @@ const Quiz = ({ save, master, words, setWords }: IProps) => {
   const dec = base((w: IWord, i: number) =>
     i === word.index ? { ...w, state: w.state - 1 } : w
   )
+  const finish = () => {
+    save()
+    setShuffledWords([])
+  }
   switch (state) {
     case STATE.WAITING:
       return (
@@ -118,7 +123,7 @@ const Quiz = ({ save, master, words, setWords }: IProps) => {
       return (
         <>
           <div>Finish</div>
-          <Button type="primary" onClick={save}>
+          <Button type="primary" onClick={finish}>
             Save
           </Button>
         </>
@@ -127,7 +132,7 @@ const Quiz = ({ save, master, words, setWords }: IProps) => {
 }
 
 export default ({ words, setWords, save }: IPageProps) => {
-  const [shuffledWords, setShuffledWords] = useState([])
+  const [shuffledWords, setShuffledWords] = useState<IIndexedWord[]>([])
   const [targetState, setTargetState] = useState(5)
   const stateMap = words
     .map((word, index) => ({ ...word, index }))
@@ -176,6 +181,7 @@ export default ({ words, setWords, save }: IPageProps) => {
       master={words}
       words={shuffledWords}
       setWords={setWords}
+      setShuffledWords={setShuffledWords}
     />
   )
 }
