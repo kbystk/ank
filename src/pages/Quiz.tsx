@@ -78,6 +78,9 @@ const Quiz = ({ save, master, words, setWords, setShuffledWords }: IProps) => {
     case STATE.THINKING:
       return (
         <>
+          <div>
+            {current}/{words.length}
+          </div>
           <h1 style={{ fontSize: '3rem', wordBreak: 'break-all' }}>
             {word.word}
           </h1>
@@ -90,6 +93,9 @@ const Quiz = ({ save, master, words, setWords, setShuffledWords }: IProps) => {
     case STATE.REVEAL:
       return (
         <>
+          <div>
+            {current}/{words.length}
+          </div>
           <h1 style={{ fontSize: '3rem', wordBreak: 'break-all' }}>
             {word.word}
           </h1>
